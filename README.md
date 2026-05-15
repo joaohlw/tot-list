@@ -1,4 +1,4 @@
-Aplicativo de lista de tarefas desenvolvido em React Native com Expo, com persistência local usando AsyncStorage.
+Aplicativo de lista de compras desenvolvido em React Native com Expo, com persistência local usando AsyncStorage.
 
 Pré-requisitos
 

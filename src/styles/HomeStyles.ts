@@ -4,7 +4,7 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: '#8bde20'
+        backgroundColor: '#f5f7fb'
     },
 
     header: {
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     inputContainer:{
         flexDirection: 'row',
         gap: 10,
-        paddingHorizontal: 28,
+        paddingHorizontal: 20,
         paddingVertical: 12,
     },
 
@@ -58,19 +58,129 @@ const styles = StyleSheet.create({
         fontWeight: '700',
     },
 
+    categorySection: {
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+    },
+
+    filterSection: {
+        paddingHorizontal: 20,
+        paddingVertical: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#e5e7eb',
+        marginTop: 4,
+    },
+
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 8,
+    },
+
+    categoryList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+
+    categoryButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#e5e7eb',
+    },
+
+    categoryButtonActive: {
+        backgroundColor: '#2563eb',
+    },
+
+    categoryButtonText: {
+        fontSize: 14,
+        color: '#374151',
+    },
+
+    categoryButtonTextActive: {
+        color: '#fff',
+    },
+
+    filterList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+
+    filterButton: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#e5e7eb',
+    },
+
+    filterButtonActive: {
+        backgroundColor: '#10b981',
+    },
+
+    filterButtonText: {
+        fontSize: 14,
+        color: '#374151',
+    },
+
+    filterButtonTextActive: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+
+    filterIndicator: {
+        flexDirection: 'row',
+        backgroundColor: '#dbeafe',
+        marginHorizontal: 20,
+        marginVertical: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+    },
+
+    filterIndicatorText: {
+        fontSize: 12,
+        color: '#1e40af',
+    },
+
+    filterCount: {
+        fontSize: 12,
+        color: '#1e40af',
+        fontWeight: 'bold',
+    },
+
+    clearButton: {
+        backgroundColor: '#ef4444',
+        marginHorizontal: 20,
+        marginTop: 8,
+        marginBottom: 8,
+        paddingVertical: 10,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+
+    clearButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+
     summaryContainer:{
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingHorizontal: 28,
+        paddingHorizontal: 20,
         paddingVertical: 8,
-        gap: 18,
+        gap: 12,
     },
 
     summaryCard: {
         flex: 1,
         backgroundColor: '#fff',
         borderRadius: 14,
-        paddingVertical: 18,
+        paddingVertical: 14,
         alignItems: 'center',
         borderWidth: 1,
         borderColor: '#e5e7eb'
@@ -85,31 +195,35 @@ const styles = StyleSheet.create({
     summarylabel: {
         marginTop: 4,
         fontSize: 13,
-        color: '#111827',
+        color: '#6b7280',
     },
+
     emptyState:{
-        flex:1,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 80,
     },
+
     emptyTitle:{
         fontSize: 18,
-        fontWeight: '700',
-        color: '374151'
+        fontWeight: '600',
+        color: '#374151'
     },
+
     emptyText: {
         marginTop: 8,
-        fontSize: 15,
+        fontSize: 14,
         color: '#6b7280',
         textAlign: 'center'
     },
+
     listContent:{
         padding: 20,
         paddingBottom: 40,
         flexGrow: 1,
     },
-    taskCard: {
+
+    itemCard: {
         backgroundColor: '#fff',
         borderRadius: 12,
         padding: 14,
@@ -119,12 +233,14 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e5e7eb'
     },
-    taskContent: {
+
+    itemContent: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
     },
+
     checkCircle: {
         width: 24,
         height: 24,
@@ -134,23 +250,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+
     checkCircleDone: {
         backgroundColor: '#16a34a',
         borderColor: '#16a34a',
     },
+
     checkIcon: {
         color: '#fff',
         fontWeight: '700',
     },
-    taskText: {
+
+    itemInfo: {
         flex: 1,
+    },
+
+    categoryText: {
+        fontSize: 11,
+        color: '#6b7280',
+        marginBottom: 2,
+    },
+
+    itemText: {
         fontSize: 16,
         color: '#111827',
     },
-    taskTextDone: {
+
+    itemTextDone: {
         textDecorationLine: 'line-through',
         color: '#6b7280',
     },
+
     deleteButton: {
         marginLeft: 12,
         backgroundColor: '#fee2e2',
@@ -158,6 +288,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         borderRadius: 10,
     },
+
     deleteButtonText: {
         color: '#b91c1c',
         fontSize: 13,

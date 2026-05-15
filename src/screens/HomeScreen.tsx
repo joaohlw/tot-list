@@ -1,5 +1,4 @@
 import {
-    SafeAreaView,
     StatusBar,
     View,
     Text,
@@ -14,122 +13,143 @@ import styles from '../styles/HomeStyles';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-type Task = {
+type Item = {
     id: string;
-    title: string;
-    done: boolean;
+    name: string;
+    category: string;
+    purchased: boolean;
 }
 
-const STORAGE_KEY = '@todo_list_tasks';
+const STORAGE_KEY = '@shopping_list';
 
 export default function HomeScreen() {
 
-    const [taskText, setTaskText] = useState<string>('');
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const [itemName, setItemName] = useState<string>('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('Alimento');
+    const [items, setItems] = useState<Item[]>([]);
+    const [filterCategory, setFilterCategory] = useState<string>('Todos');
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    const categories = ['Alimento', 'Limpeza', 'Higiene', 'Bebida'];
+    const filterOptions = ['Todos', 'Alimento', 'Limpeza', 'Higiene', 'Bebida'];
+
     useEffect(() => {
-        loadTasks();
+        loadItems();
     }, []);
 
     useEffect(() => {
         if (!isLoading) {
-            saveTasks(tasks);
+            saveItems(items);
         }
-    }, [tasks]);
+    }, [items]);
 
-    const loadTasks = async () => {
+    const loadItems = async () => {
         try {
-            const storedTasks = await AsyncStorage.getItem(STORAGE_KEY);
-            if (storedTasks !== null) {
-                setTasks(JSON.parse(storedTasks));
+            const storedItems = await AsyncStorage.getItem(STORAGE_KEY);
+            if (storedItems !== null) {
+                setItems(JSON.parse(storedItems));
             }
         } catch (error) {
-            console.error('Erro ao carregar tarefas:', error);
-            Alert.alert('Erro', 'Não foi possível carregar as tarefas salvas');
+            console.error('Erro ao carregar itens:', error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const saveTasks = async (tasksToSave: Task[]) => {
+    const saveItems = async (itemsToSave: Item[]) => {
         try {
-            const jsonValue = JSON.stringify(tasksToSave);
+            const jsonValue = JSON.stringify(itemsToSave);
             await AsyncStorage.setItem(STORAGE_KEY, jsonValue);
         } catch (error) {
-            console.error('Erro ao salvar tarefas:', error);
-            Alert.alert('Erro', 'Não foi possível salvar as tarefas');
+            console.error('Erro ao salvar itens:', error);
         }
     };
 
-    function addTask(){
-        const trimmedTask = taskText.trim();
+    function addItem() {
+        const trimmedItem = itemName.trim();
 
-        if(!trimmedTask){
-            alert('Digite uma tarefa antes de adicionar');
+        if (!trimmedItem) {
+            alert('Digite o nome do item antes de adicionar');
             return;
         }
 
-        const newTask: Task = {
-            id: String(Date.now()),
-            title: trimmedTask,
-            done: false,
+        const newItem: Item = {
+            id: Date.now().toString(),
+            name: trimmedItem,
+            category: selectedCategory,
+            purchased: false,
         };
 
-        setTasks((currentTasks) => [newTask, ...currentTasks]);
-
-        setTaskText('');
+        setItems([newItem, ...items]);
+        setItemName('');
         Keyboard.dismiss();
     }
 
-    function renderItem({item}: {item: Task}){
+    function renderItem({ item }: { item: Item }) {
         return (
-            <View style={styles.taskCard}>
+            <View style={styles.itemCard}>
                 <TouchableOpacity
-                    style={styles.taskContent}
-                    onPress={() => toggleTaskDone(item.id)}
+                    style={styles.itemContent}
+                    onPress={() => togglePurchased(item.id)}
                     activeOpacity={0.8}
                 >
-                    <View style={[styles.checkCircle, item.done && styles.checkCircleDone]}>
-                        {item.done && <Text style={styles.checkIcon}>✓</Text>}
+                    <View style={[styles.checkCircle, item.purchased && styles.checkCircleDone]}>
+                        {item.purchased && <Text style={styles.checkIcon}>✓</Text>}
                     </View>
 
-                    <Text style={[styles.taskText, item.done && styles.taskTextDone]}>
-                        {item.title}
-                    </Text>
+                    <View style={styles.itemInfo}>
+                        <Text style={styles.categoryText}>{item.category}</Text>
+                        <Text style={[styles.itemText, item.purchased && styles.itemTextDone]}>
+                            {item.name}
+                        </Text>
+                    </View>
 
                 </TouchableOpacity>
 
                 <TouchableOpacity
                     style={styles.deleteButton}
-                    onPress={() => deleteTask(item.id)}
+                    onPress={() => {
+                        const novaLista = items.filter(i => i.id !== item.id);
+                        setItems(novaLista);
+                    }}
                     activeOpacity={0.8}
                 >
                     <Text style={styles.deleteButtonText}>Excluir</Text>
                 </TouchableOpacity>
             </View>
         );
-
     }
 
-    function toggleTaskDone(id: string){
-        setTasks((currentTasks) => 
-            currentTasks.map((task) =>
-                task.id === id ? {...task, done: !task.done} : task
-            )
+    function togglePurchased(id: string) {
+        const novaLista = items.map(item => 
+            item.id === id ? { ...item, purchased: !item.purchased } : item
         );
+        setItems(novaLista);
     }
 
-    function deleteTask(id: string){
-        setTasks((currentTasks) =>
-            currentTasks.filter((task) => task.id !== id)
-        );
+    function clearAllItems() {
+        if (items.length === 0) {
+            return;
+        }
+        setItems([]);
     }
+
+    const getFilteredItems = () => {
+        if (filterCategory === 'Todos') {
+            return items;
+        }
+        return items.filter(item => item.category === filterCategory);
+    };
+
+    const filteredItems = getFilteredItems();
+    const totalItems = items.length;
+    const purchasedItems = items.filter(item => item.purchased).length;
+    const pendingItems = totalItems - purchasedItems;
 
     if (isLoading) {
         return (
             <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-                <Text>Carregando tarefas...</Text>
+                <Text>Carregando...</Text>
             </View>
         );
     }
@@ -143,23 +163,23 @@ export default function HomeScreen() {
             />
 
             <View style={styles.header}>
-                <Text style={styles.title}>To-do List</Text>
-                <Text style={styles.subtitle}>Organizador de tarefas</Text>
+                <Text style={styles.title}>Lista de Compras</Text>
+                <Text style={styles.subtitle}>Organize suas compras</Text>
             </View>
 
             <View style={styles.inputContainer}>
                 <TextInput
                     style={styles.input}
-                    placeholder="Digite uma tarefa"
-                    value={taskText}
-                    onChangeText={setTaskText}
-                    onSubmitEditing={addTask}
+                    placeholder="Digite o nome do item"
+                    value={itemName}
+                    onChangeText={setItemName}
+                    onSubmitEditing={addItem}
                 />
 
                 <TouchableOpacity
                     style={styles.addButton}
                     activeOpacity={0.8}
-                    onPress={addTask}
+                    onPress={addItem}
                 >
                     <Text style={styles.addButtonText}>
                         Adicionar
@@ -167,34 +187,102 @@ export default function HomeScreen() {
                 </TouchableOpacity>
             </View>
 
+            <View style={styles.categorySection}>
+                <Text style={styles.sectionTitle}>Categoria do item:</Text>
+                <View style={styles.categoryList}>
+                    {categories.map((category) => (
+                        <TouchableOpacity
+                            key={category}
+                            style={[
+                                styles.categoryButton,
+                                selectedCategory === category && styles.categoryButtonActive
+                            ]}
+                            onPress={() => setSelectedCategory(category)}
+                        >
+                            <Text style={[
+                                styles.categoryButtonText,
+                                selectedCategory === category && styles.categoryButtonTextActive
+                            ]}>
+                                {category}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            <View style={styles.filterSection}>
+                <Text style={styles.sectionTitle}>Filtrar por categoria:</Text>
+                <View style={styles.filterList}>
+                    {filterOptions.map((filter) => (
+                        <TouchableOpacity
+                            key={filter}
+                            style={[
+                                styles.filterButton,
+                                filterCategory === filter && styles.filterButtonActive
+                            ]}
+                            onPress={() => setFilterCategory(filter)}
+                        >
+                            <Text style={[
+                                styles.filterButtonText,
+                                filterCategory === filter && styles.filterButtonTextActive
+                            ]}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </View>
+            </View>
+
+            <TouchableOpacity
+                style={styles.clearButton}
+                onPress={clearAllItems}
+                activeOpacity={0.8}
+            >
+                <Text style={styles.clearButtonText}>Limpar lista completa</Text>
+            </TouchableOpacity>
+
             <View style={styles.summaryContainer}>
-                
                 <View style={styles.summaryCard}>
-                    <Text style={styles.summaryNumber}>{tasks.length}</Text>
+                    <Text style={styles.summaryNumber}>{totalItems}</Text>
                     <Text style={styles.summarylabel}>Total</Text>
                 </View>
 
                 <View style={styles.summaryCard}>
-                    <Text style={styles.summaryNumber}>{tasks.filter((task) => !task.done).length}</Text>
+                    <Text style={styles.summaryNumber}>{pendingItems}</Text>
                     <Text style={styles.summarylabel}>Pendentes</Text>
                 </View>
 
                 <View style={styles.summaryCard}>
-                    <Text style={styles.summaryNumber}>{tasks.filter((task) => task.done).length}</Text>
-                    <Text style={styles.summarylabel}>Concluídas</Text>
+                    <Text style={styles.summaryNumber}>{purchasedItems}</Text>
+                    <Text style={styles.summarylabel}>Comprados</Text>
                 </View>
-                
             </View>
 
+            {filterCategory !== 'Todos' && filteredItems.length > 0 && (
+                <View style={styles.filterIndicator}>
+                    <Text style={styles.filterIndicatorText}>
+                        Mostrando apenas itens de: {filterCategory} ({filteredItems.length} itens)
+                    </Text>
+                </View>
+            )}
+
             <FlatList
-                data={tasks}
+                data={filteredItems}
                 keyExtractor={item => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
                     <View style={styles.emptyState}>
-                        <Text style={styles.emptyTitle}>Nenhuma tarefa cadastrada</Text>
-                        <Text style={styles.emptyText}>Adicione sua primeira tarefa</Text>
+                        <Text style={styles.emptyTitle}>
+                            {filterCategory !== 'Todos' 
+                                ? `Nenhum item da categoria ${filterCategory}`
+                                : 'Nenhum item cadastrado'}
+                        </Text>
+                        <Text style={styles.emptyText}>
+                            {filterCategory !== 'Todos' 
+                                ? 'Tente outra categoria ou adicione novos itens'
+                                : 'Adicione seu primeiro item'}
+                        </Text>
                     </View>
                 }
             />
